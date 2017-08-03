@@ -8,32 +8,20 @@ var RedisStore = require('connect-redis')(session);
 var cookieParser = require('cookie-parser');
 var serveStatic = require('serve-static');  // 静态文件处理
 var bodyParser = require('body-parser');
+var busboy = require('connect-busboy');//处理文件上传
+var fs = require('fs')
 
 app.set('views','./app/views/pages');
 app.set('view engine','jade');
 
 // 因为后台录入页有提交表单的步骤，故加载此模块方法（bodyParser模块来做文件解析），将表单里的数据进行格式化
 app.use(bodyParser.urlencoded({extended: true}));
-
-//app.use(express.cookieParser());
 app.use(cookieParser());
+app.use(require('connect-multiparty')());
 app.use(session({//默认内存储存
   secret: 'recommand 128 bytes random string', // 建议使用 128 个字符的随机字符串
   cookie: { maxAge: 60 * 1000 }
 }));
-/*app.use(session({//需写在路由配置之前
-    name: 'skey',
-    secret: 'songsunny',  // 用来对session id相关的cookie进行签名
-    store: new RedisStore({
-    	'host':'localhost',
-    	'port':'9935'
-    }),  // 本地存储session（文本文件，也可以选择其他store，比如redis的）
-    saveUninitialized: true,  // 是否自动保存未初始化的会话，建议false
-    resave: false,  // 是否每次都重新保存会话，建议false
-    cookie: {
-        maxAge: 60 * 1000  // 有效期，单位是毫秒
-    }
-}));*/
 app.use(function(req,res,next){
     res.locals = req.session;
     next();

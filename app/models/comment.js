@@ -14,7 +14,6 @@ mysql = connection.getDbCon();
 module.exports = Comment;
 //获取评论
 Comment.findById =  function  findById(id,callback) {
-    console.log(id);
         // 读取 comments 集合
         var comments=[];
         mysql.query('call pro_searAllComment("'+id+'")',function(err,results,fields){
@@ -65,9 +64,9 @@ Comment.findById =  function  findById(id,callback) {
                    _commentId=commentObj._id
 
                 }
-                console.log(comments);
-                callback(err,comments,fields);
             }
+            console.log('callback')
+            callback(err,comments)
         });
 };
 //保存评论信息

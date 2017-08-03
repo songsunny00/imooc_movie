@@ -1,6 +1,9 @@
 var Movie = require('../models/movie');
 var Comment = require('../models/comment');
 var _underscore = require('underscore'); // _.extend用新对象里的字段替换老的字段
+var _ = require('underscore')
+var fs = require('fs');
+var path = require('path');
 // 编写主要页面路由
 // index page 首页
 exports.index=function(req,res){
@@ -34,12 +37,12 @@ exports.adminIdx=function (req, res) {
 // detail page 详情页
 exports.getDetail=function (req, res) {
     var id = req.params.id;
-    console.log(id);
     Movie.findById(id, function (err, movie) {
+        var _movie=movie;
         Comment.findById(id,function (err,comments) {
             res.render('detail', {
-                title: '详情页' + movie.title,
-                movie: movie,
+                title: '详情页' + _movie.title,
+                movie: _movie,
                 comments:comments
             });
         });
@@ -58,11 +61,37 @@ exports.refresh_BW=function (req, res) {
         });
     }
 }
+//
+exports.savePoster = function(req, res, next) {
+  var posterData = req.files.uploadPoster;
+  var filePath = posterData.path
+  var originalFilename = posterData.originalFilename
+
+  if (originalFilename) {
+    fs.readFile(filePath, function(err, data) {
+      var timestamp = Date.now()
+      var type = posterData.type.split('/')[1]
+      var poster = timestamp + '.' + type
+      var newPath = path.join(__dirname, '../../', '/public/upload/' + poster)
+
+      fs.writeFile(newPath, data, function(err) {
+        req.poster = poster
+        next()
+      })
+    })
+  }
+  else {
+    next()
+  }
+}
 // admin post movie 后台录入提交
 exports.editMovie_BW=function (req, res) {
     var id = req.body.movie._id;
     var movieObj = req.body.movie;
     var _movie = null;
+     if (req.poster) {
+        movieObj.poster = req.poster
+    }
     if (id !== 'undefined') { // 已经存在的电影数据
         Movie.findById(id, function (err, movie) {
             if (err) {

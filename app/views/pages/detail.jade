@@ -4,7 +4,8 @@ block content
   .container
     .row
       .col-md-7
-        embed(src="#{movie.flash}", allowFullScreen="true", quality="high", width="720", height="600", align="middle", allowScriptAcess="always", type="application/x-shockwave-flash")
+        if movie.flash.indexOf('http:') > -1
+          embed(src="#{movie.flash}", allowFullScreen="true", quality="high", width="720", height="600", align="middle", allowScriptAcess="always", type="application/x-shockwave-flash")
         .panel.panel-defatul
           .panel-heading
             h3 评论区
